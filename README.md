@@ -37,3 +37,21 @@
 
 Скриншот логов Nginx, отправленных через Filebeat:
 ![Задание 4](img/scr4.png)
+
+---
+
+## Задание 5*. Доставка данных (syslog)
+
+**Приложение:** Для выполнения задания был выбран системный журнал `syslog` (файл `/var/log/syslog`).
+
+**Logstash:**
+Настроен конфигурационный файл `logstash-syslog.conf` с использованием Grok-фильтра `%{SYSLOGBASE}` для парсинга полей.
+
+Скриншот логов syslog, отправленных через Logstash (индекс `syslog-logstash-*`):
+![Задание 5 Logstash](img/task5_logstash.png)
+
+**Filebeat:**
+Настроен конфигурационный файл `filebeat-syslog.yml` с input-типом `filestream`.
+
+Скриншот логов syslog, отправленных через Filebeat (индекс `syslog-filebeat-*`):
+![Задание 5 Filebeat](img/task5_filebeat.png)
