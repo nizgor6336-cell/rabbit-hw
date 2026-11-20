@@ -48,10 +48,10 @@
 Настроен конфигурационный файл `logstash-syslog.conf` с использованием Grok-фильтра `%{SYSLOGBASE}` для парсинга полей.
 
 Скриншот логов syslog, отправленных через Logstash (индекс `syslog-logstash-*`):
-![Задание 5 Logstash](img/task5_logstash.png)
+![Задание 5 Logstash](img/scr5.png)
 
 **Filebeat:**
 Настроен конфигурационный файл `filebeat-syslog.yml` с input-типом `filestream`.
 
 Скриншот логов syslog, отправленных через Filebeat (индекс `syslog-filebeat-*`):
-![Задание 5 Filebeat](img/task5_filebeat.png)
+![Задание 5 Filebeat](img/scr6.png)
