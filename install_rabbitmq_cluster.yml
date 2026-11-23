@@ -1,0 +1,70 @@
+---
+- name: Install and Configure RabbitMQ Cluster
+  hosts: rabbitmq_cluster
+  become: yes
+  vars:
+    # Единый секретный ключ для всех нод (обязательно для кластера)
+    rabbitmq_erlang_cookie: "MY_SUPER_SECRET_COOKIE"
+    # Автоматически берем первую ноду из инвентаря как мастер
+    cluster_master: "{{ groups['rabbitmq_cluster'][0] }}"
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install RabbitMQ server
+      ansible.builtin.apt:
+        name: rabbitmq-server
+        state: present
+
+    - name: Ensure RabbitMQ service is started and enabled
+      ansible.builtin.service:
+        name: rabbitmq-server
+        state: started
+        enabled: yes
+
+    - name: Enable RabbitMQ management plugin
+      ansible.builtin.command:
+        cmd: rabbitmq-plugins enable rabbitmq_management
+        creates: /etc/rabbitmq/enabled_plugins
+
+    - name: Set identical Erlang cookie on all nodes
+      ansible.builtin.copy:
+        content: "{{ rabbitmq_erlang_cookie }}"
+        dest: /var/lib/rabbitmq/.erlang.cookie
+        owner: rabbitmq
+        group: rabbitmq
+        mode: '0400'
+
+    - name: Restart RabbitMQ to apply cookie
+      ansible.builtin.service:
+        name: rabbitmq-server
+        state: restarted
+
+    # --- Настройка кластера (выполняется на всех, кроме мастера) ---
+    - name: Stop RabbitMQ app on non-master nodes
+      ansible.builtin.command:
+        cmd: rabbitmqctl stop_app
+      when: inventory_hostname != cluster_master
+
+    - name: Reset RabbitMQ on non-master nodes
+      ansible.builtin.command:
+        cmd: rabbitmqctl reset
+      when: inventory_hostname != cluster_master
+
+    - name: Join the cluster to the master node
+      ansible.builtin.command:
+        cmd: "rabbitmqctl join_cluster rabbit@{{ cluster_master }}"
+      when: inventory_hostname != cluster_master
+
+    - name: Start RabbitMQ app on non-master nodes
+      ansible.builtin.command:
+        cmd: rabbitmqctl start_app
+      when: inventory_hostname != cluster_master
+
+    # --- Настройка политики HA (выполняется только на мастере) ---
+    - name: Set ha-all policy on the master node
+      ansible.builtin.command:
+        cmd: rabbitmqctl set_policy ha-all ".*" '{"ha-mode":"all"}'
+      when: inventory_hostname == cluster_master
