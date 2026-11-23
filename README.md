@@ -9,7 +9,7 @@
 RabbitMQ был развернут с помощью Docker (образ `rabbitmq:3-management`), так как системная установка на Ubuntu 24.04 выдавала ошибки. Веб-интерфейс доступен на порту `15672`.
 
 Скриншот веб-интерфейса RabbitMQ:
-![Задание 1](img/scr1.png)
+![Задание 1](img/task1_rabbitmq.png)
 
 ---
 
@@ -18,10 +18,10 @@ RabbitMQ был развернут с помощью Docker (образ `rabbitm
 Для работы скриптов был установлен Python 3 и библиотека Pika. Скрипт `producer.py` отправил сообщение в очередь `hello`.
 
 **Скриншот очереди в веб-интерфейсе (Ready: 1):**
-![Очередь](img/scr2.png)
+![Очередь](img/task2_queue.png)
 
 **Скриншот результата работы `consumer.py`:**
-![Консьюмер](img/scr3.png)
+![Консьюмер](img/task2_consumer.png)
 
 ---
 
@@ -30,20 +30,20 @@ RabbitMQ был развернут с помощью Docker (образ `rabbitm
 Кластер RabbitMQ развернут с использованием двух Docker-контейнеров (`rabbitmq1` и `rabbitmq2`), объединенных в сеть `rabbitmq-net`. Обе ноды используют одинаковый Erlang cookie для успешного соединения. Создана политика `ha-all` для репликации всех очередей.
 
 **Скриншот нод в кластере:**
-![Ноды](img/scr4.png)
+![Ноды](img/task3_nodes.png)
 
 **Скриншот политики ha-all:**
-![Политика](img/scr5.png)
+![Политика](img/task3_policy.png)
 
 **Вывод команды `rabbitmqctl cluster_status`:**
-![Статус кластера](img/scr6.png)
+![Статус кластера](img/task3_cluster_status.png)
 
 **Проверка сообщений через `rabbitmqadmin get queue='hello'` на обеих нодах:**
-![Rabbitmqadmin](img/scr7.png)
+![Rabbitmqadmin](img/task3_rabbitmqadmin.png)
 
 **Тест отказоустойчивости (Failover):**
 Нода `rabbitmq1` была остановлена. Скрипт `producer.py` не смог подключиться к упавшей ноде, а `consumer.py` был перенастроен на порт второй ноды (`5673`) и успешно получил 3 сообщения из очереди.
-![Failover](img/scr8.png)
+![Failover](img/task3_failover.png)
 
 ---
 
